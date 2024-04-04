@@ -1,5 +1,18 @@
+import java.util.ArrayList;
+import java.lang.reflect.Array;
 public class Karma {
-    public static int upvote;
-    public static int downvote;
-    public static int voteSum;
+    public Account account;
+    public int vote;
+    public static int sum() {
+        return 0; //todo
+    }
+
+
+
+
+
+
+
+
+
 }
