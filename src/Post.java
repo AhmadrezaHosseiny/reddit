@@ -9,26 +9,29 @@ public class Post {
     public ArrayList<Comment> comments = new ArrayList<>();
     public ArrayList<String> tags = new ArrayList<>();
     public ArrayList<Karma> karmas = new ArrayList<>();
-    public static void createPost() throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        while (true) {
-            System.out.print("Enter your title: ");
-            String title = br.readLine();
-            System.out.print("Enter your text: ");
-            String text = br.lines().toString();
-            Post p = new Post();
-            p.title = title;
-            p.text = text;
-        }
+    Post(String title, String text, Subreddit s) {
+        this.title = title;
+        this.text = text;
+        s.posts.add(this);
+        this.account = Reddit.currentAccount;
     }
-    public void showPostBody(Post p) {
-        System.out.println("Title: " + p.title);
-        System.out.println("Text: " + p.text);
+    public void show() {
+        System.out.println("Title: " + this.title);
+        System.out.println("Text: " + this.text);
     }
-    public void showPostComments() {
+    public void showTable(String prefix) {
+        System.out.println(prefix + this.title + "\t\t" + this.text);
+    }
+    public void showComments() {
         for (Comment c : comments) {
             c.show();
         }
+    }
+    public static Post search(String title) {
+        for (Post p : Reddit.currentSubreddit.posts) {
+            if (p.title.equals(title)) return p;
+        }
+        return null;
     }
 
 
