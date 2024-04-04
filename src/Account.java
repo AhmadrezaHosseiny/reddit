@@ -1,31 +1,32 @@
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 public class Account {
-    public static String email;
-    public static String password;
-    public static String extractUrl(String s) {
-        String regex = "\\b(https?)://\\S+\\b";
-
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(s);
-
-        if (matcher.find()) {
-            return matcher.group();
-        }
-        else {
-            return null;
-        }
+    public String username;
+    public String email;
+    public String password;
+    Account(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
     }
-    public static boolean validateEmail(String s) {
+    public static Account logIn(String email, String password) {
+        for (Account a : Reddit.accounts) {
+            if (a.email.equals(email) && a.password.equals(password)) {
+                return a;
+            }
+        }
+        return null;
+    }
+    public boolean validateEmail() {
         String regex = "\\b[\\w.\\-_]+@\\w+\\.\\S+\\b";
 
         Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(s);
+        Matcher matcher = pattern.matcher(this.email);
 
         return matcher.find();
     }
-    public static boolean validatePassword(String s) {
-        return s.equals(password);
+    public boolean validatePassword() {
+        return !password.isEmpty();
     }
 
 
