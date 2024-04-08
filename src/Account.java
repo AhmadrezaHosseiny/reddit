@@ -11,9 +11,7 @@ public class Account {
     }
     public static Account logIn(String email, String password) {
         for (Account a : Reddit.accounts) {
-            if (a.email.equals(email) && a.password.equals(password)) {
-                return a;
-            }
+            if (a.email.equals(email) && a.password.equals(password)) return a;
         }
         return null;
     }

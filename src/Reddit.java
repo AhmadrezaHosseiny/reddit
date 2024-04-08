@@ -5,11 +5,12 @@ import java.io.InputStreamReader;
 public class Reddit {
     public static boolean debug = false;
     public static String prefix = "-->";
+    public static Post currentPost;
     public static Account currentAccount;
     public static Subreddit currentSubreddit;
-    public static Post currentPost;
     public static ArrayList<Account> accounts = new ArrayList<>();
     public static ArrayList<Subreddit> subreddits = new ArrayList<>();
+    private static Comment currentComment;
     public static void show(String s) {
         if (debug) System.out.println(prefix + s);
     }
@@ -23,9 +24,13 @@ public class Reddit {
         Subreddit s3 = new Subreddit("python");
         Post p1 = new Post("post1title", "post1text", s1);
         Post p2 = new Post("post2title", "post2text", s1);
-        Post p3 = new Post("post3title", "post3text", s1);
-        Post p4 = new Post("post4title", "post4text", s2);
-        Post p5 = new Post("post5title", "post5text", s2);
+        Post p3 = new Post("post3title", "post3text", s2);
+        Post p4 = new Post("post4title", "post4text", s3);
+        Comment c1 = new Comment("comment1text", p1);
+        Comment c2 = new Comment("comment1text", p2);
+        Comment c3 = new Comment("comment1text", p3);
+        Comment c4 = new Comment("comment1text", p4);
+        Comment c5 = new Comment("comment1text", p4);
     }
     public static void createAccount() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -81,7 +86,7 @@ public class Reddit {
             if (a != null) {
                 Reddit.currentAccount = a;
                 System.out.println();
-                System.out.println("Log in successfully.");
+                System.out.println("Logged in successfully.");
                 System.out.println();
                 System.out.println(a.username);
                 System.out.println(a.email);
@@ -90,7 +95,7 @@ public class Reddit {
                 valid = true;
             }
             System.out.println();
-            System.out.println("Log in unsuccessfully.");
+            System.out.println("Logged in unsuccessfully.");
             System.out.println();
         }
     }
@@ -99,7 +104,7 @@ public class Reddit {
         System.out.println("Logged out.");
         Reddit.logIn();
     }
-    public static void edit() throws IOException {
+    public static void editUsername() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         boolean valid = false;
         while (!valid) {
@@ -131,35 +136,7 @@ public class Reddit {
         System.out.print("Enter your topic: ");
         String topic = br.readLine();
         Subreddit s = new Subreddit(topic);
-    }
-    public static void showAllSubreddits() {
-        System.out.print("\r\nList of all subreddits: \r\n");
-        System.out.println("Topic\t\tUsername");
-        for (Subreddit s : subreddits) {
-            s.showTable();
-        }
-    }
-    public static Subreddit selectSubreddit() throws IOException {
-        Subreddit s = null;
-        while (s == null) {
-            showAllSubreddits();
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("Enter your selected topic: ");
-            String topic = br.readLine();
-            s = Subreddit.search(topic);
-        }
-        return s;
-    }
-    public static Post selectPost() throws IOException {
-        Post p = null;
-        while (p == null) {
-            showCurrentSubWithPosts();
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("Enter your selected title: ");
-            String title = br.readLine();
-            p = Post.search(title);
-        }
-        return p;
+        System.out.println("Subreddit created successfully.");
     }
     public static void createPost() throws IOException {
         if (Reddit.currentSubreddit == null) {
@@ -172,29 +149,88 @@ public class Reddit {
         System.out.print("Enter your text: ");
         String text = br.readLine();
         Post p = new Post(title, text, Reddit.currentSubreddit);
-        System.out.println("Your post created.");
+        System.out.println("Post created successfully.");
         p.show();
+    }
+    public static void createComment() throws IOException {
+        if (Reddit.currentPost == null) {
+            System.out.println("First select post.");
+            return;
+        }
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        System.out.print("Enter your comment: ");
+        String text = br.readLine();
+        Comment c = new Comment(text, Reddit.currentPost);
+        System.out.println("Comment created successfully.");
+        c.show();
+    }
+    public static Subreddit selectSubreddit() throws IOException {
+        Subreddit s = null;
+        while (s == null) {
+            showAllSubreddits();
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print("Enter your topic: ");
+            String topic = br.readLine();
+            s = Subreddit.search(topic);
+        }
+        return s;
+    }
+    public static Post selectPost() throws IOException {
+        Post p = null;
+        while (p == null) {
+            showCurrentSubredditWithPosts();
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print("Enter your selected title: ");
+            String title = br.readLine();
+            p = Post.search(title);
+        }
+        return p;
+    }
+    public static Comment selectComment() throws IOException {
+        Comment c = null;
+        while (c == null) {
+            showCurrentPostWithComments();
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));                //write
+            System.out.print("Enter your text: ");
+            String text = br.readLine();
+            c = Comment.search(text);
+        }
+        return c;
+    }
+    public static void showAllSubreddits() {
+        System.out.print("\r\nList of all subreddits: \r\n");
+        System.out.println("Topic\t\tUsername");
+        for (Subreddit s : subreddits) s.showTable();
+    }
+    public static void showAllSubredditsWithPosts() {
+        for (Subreddit s : Reddit.subreddits) {
+            s.show();
+            System.out.println("\tPost\tTitle\t\t\tText");//todo show username
+            for (Post p : s.posts) p.showTable("\t\t\t");
+        }
+    }
+    public static void showAllPostsWithComments() {
+        for (Post p : Reddit.currentSubreddit.posts) {
+            p.show();
+            System.out.println("\tComment\t\t\tText");                          //write
+            for (Comment c : p.comments) c.showTable("\t\t\t");
+        }
+    }
+    public static void showCurrentSubredditWithPosts() {
+        Subreddit s = Reddit.currentSubreddit;
+        s.show();
+        System.out.println("\tPost\tTitle\t\t\tText");//todo show username
+        for (Post p : s.posts) p.showTable("\t\t\t");
+    }
+    public static void showCurrentPostWithComments() {
+        Post p = Reddit.currentPost;
+        p.show();                                                                  //write
+        System.out.println("\tComment\t\t\tText");//todo show username
+        for (Comment c : p.comments) c.showTable("\t\t\t");
     }
     public static void setCurrentSubreddit() throws IOException {
         Reddit.currentSubreddit = Reddit.selectSubreddit();
         System.out.println("Current subreddit topic is: " + Reddit.currentSubreddit.topic);
-    }
-    public static void showAllSubWithPosts() {
-        for (Subreddit s : Reddit.subreddits) {
-            s.show();
-            System.out.println("\tPost\tTitle\t\t\tText");//todo show username
-            for (Post p : s.posts) {
-                p.showTable("\t\t\t");
-            }
-        }
-    }
-    public static void showCurrentSubWithPosts() {
-        Subreddit s = Reddit.currentSubreddit;
-        s.show();
-        System.out.println("\tPost\tTitle\t\t\tText");//todo show username
-        for (Post p : s.posts) {
-            p.showTable("\t\t\t");
-        }
     }
     public static void setCurrentPost() throws IOException {
         if (Reddit.currentSubreddit == null) {
@@ -205,6 +241,25 @@ public class Reddit {
         System.out.println("Current post is: ");
         Reddit.currentPost.show();
     }
+    public static void setCurrentComment() throws IOException {
+        if (Reddit.currentPost == null) {
+            System.out.println("First select post.");                      //write
+            setCurrentPost();
+        }
+        Reddit.currentComment = Reddit.selectComment();
+        System.out.println("Current comment is: ");
+        Reddit.currentComment.show();
+    }
+
+
+
+
+
+
+
+
+
+
 
 
 
