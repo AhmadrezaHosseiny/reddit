@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 public class Reddit {
     public static boolean debug = false;
+    public static String sep = "\t\t";
     public static String prefix = "-->";
     public static Post currentPost;
     public static Account currentAccount;
@@ -16,21 +17,48 @@ public class Reddit {
     }
     public static void init() {
         System.out.println("\r\nInitialising...\r\n");
+
         Account a1 = new Account("u1", "e1@.com", "p1");
         Reddit.currentAccount = a1;
         Reddit.accounts.add(a1);
+
         Subreddit s1 = new Subreddit("java");
         Subreddit s2 = new Subreddit("c++");
         Subreddit s3 = new Subreddit("python");
+        Reddit.currentSubreddit = s1;
+
         Post p1 = new Post("post1title", "post1text", s1);
         Post p2 = new Post("post2title", "post2text", s1);
         Post p3 = new Post("post3title", "post3text", s2);
         Post p4 = new Post("post4title", "post4text", s3);
-        Comment c1 = new Comment("comment1text", p1);
-        Comment c2 = new Comment("comment1text", p2);
-        Comment c3 = new Comment("comment1text", p3);
-        Comment c4 = new Comment("comment1text", p4);
-        Comment c5 = new Comment("comment1text", p4);
+        Reddit.currentPost = p1;
+
+        Comment c1 = new Comment("comment1", p1);
+        Comment c2 = new Comment("comment2", p2);
+        Comment c3 = new Comment("comment3", p3);
+        Comment c4 = new Comment("comment4", p4);
+        Comment c5 = new Comment("comment5", p4);
+        Reddit.currentComment = c1;
+
+        new Karma(p1, "+");
+        new Karma(p1, "+");
+        new Karma(p1, "+");
+        new Karma(p1, "+");
+        new Karma(p1, "-");
+        new Karma(p1, "-");
+        new Karma(p2, "+");
+        new Karma(p2, "+");
+        new Karma(p2, "+");
+        new Karma(p2, "+");
+        new Karma(p2, "-");
+        new Karma(p2, "-");
+        new Karma(p2, "+");
+        new Karma(p2, "+");
+        new Karma(p2, "+");
+        new Karma(p2, "+");
+        new Karma(p2, "-");
+        new Karma(p2, "-");
+        new Karma(p3, "-");
     }
     public static void createAccount() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -155,7 +183,7 @@ public class Reddit {
     public static void createComment() throws IOException {
         if (Reddit.currentPost == null) {
             System.out.println("First select post.");
-            return;
+            Reddit.setCurrentPost();
         }
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         System.out.print("Enter your comment: ");
@@ -190,8 +218,8 @@ public class Reddit {
         Comment c = null;
         while (c == null) {
             showCurrentPostWithComments();
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));                //write
-            System.out.print("Enter your text: ");
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print("Enter comment text to select it: ");
             String text = br.readLine();
             c = Comment.search(text);
         }
@@ -205,28 +233,29 @@ public class Reddit {
     public static void showAllSubredditsWithPosts() {
         for (Subreddit s : Reddit.subreddits) {
             s.show();
-            System.out.println("\tPost\tTitle\t\t\tText");//todo show username
-            for (Post p : s.posts) p.showTable("\t\t\t");
+            Post.showTableHeader("");
+            for (Post p : s.posts) p.showRow("");
+            Post.showTableFooter("");
         }
     }
     public static void showAllPostsWithComments() {
         for (Post p : Reddit.currentSubreddit.posts) {
             p.show();
-            System.out.println("\tComment\t\t\tText");                          //write
-            for (Comment c : p.comments) c.showTable("\t\t\t");
+            System.out.println("\tComment\tUsername\tText");
+            for (Comment c : p.comments) c.showTable("\t\t");
         }
     }
     public static void showCurrentSubredditWithPosts() {
         Subreddit s = Reddit.currentSubreddit;
         s.show();
-        System.out.println("\tPost\tTitle\t\t\tText");//todo show username
-        for (Post p : s.posts) p.showTable("\t\t\t");
+        System.out.println("\tPost\tTitle\t\t\tText");
+        for (Post p : s.posts) p.showRow("\t\t\t");
     }
     public static void showCurrentPostWithComments() {
         Post p = Reddit.currentPost;
-        p.show();                                                                  //write
-        System.out.println("\tComment\t\t\tText");//todo show username
-        for (Comment c : p.comments) c.showTable("\t\t\t");
+        p.show();
+        System.out.println("\tComment\tUsername\tText");
+        for (Comment c : p.comments) c.showTable("\t");
     }
     public static void setCurrentSubreddit() throws IOException {
         Reddit.currentSubreddit = Reddit.selectSubreddit();
@@ -243,12 +272,26 @@ public class Reddit {
     }
     public static void setCurrentComment() throws IOException {
         if (Reddit.currentPost == null) {
-            System.out.println("First select post.");                      //write
+            System.out.println("First select post.");
             setCurrentPost();
         }
         Reddit.currentComment = Reddit.selectComment();
         System.out.println("Current comment is: ");
         Reddit.currentComment.show();
+    }
+    public static void voteOnPost() throws IOException {
+        setCurrentPost();
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        System.out.print("Enter your vote +/-: ");
+        String vote = br.readLine();
+        new Karma(Reddit.currentPost, vote);
+    }
+    public static void voteOnComment() throws IOException {
+        setCurrentComment();
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        System.out.print("Enter your vote +/-: ");
+        String vote = br.readLine();
+        new Karma(Reddit.currentComment, vote);
     }
 
 

@@ -9,13 +9,16 @@ public class Comment {
         this.account = Reddit.currentAccount;
     }
     public void show() {
-        System.out.println("Text: " + this.text);              //write
+        System.out.println("Username: " + this.account.username);
+        System.out.println("Text: " + this.text);
+        Karma k = Karma.sum(this);
+        System.out.println("Karma Upvote: " + k.upVote + "Downvote: " + k.downVote);
     }
-    public void showTable(String prefix) {                    //write
-        System.out.println(prefix + this.text);
+    public void showTable(String prefix) {
+        System.out.println(prefix + this.account.username + "\t" + this.text);
     }
     public static Comment search(String text) {
-        for (Comment c : Reddit.currentPost.comments) {       //write
+        for (Comment c : Reddit.currentPost.comments) {
             if (c.text.equals(text)) return c;
         }
         return null;
