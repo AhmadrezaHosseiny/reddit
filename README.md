@@ -11,8 +11,12 @@ purpose.
 
 ### Demo/GIFs/Images:
 Provide visuals to showcase the project in action.
-Main menu:
-![Main menu](./mainmenu.png)
+Main run menu:
+![Main runMenu](./runmenu.png)
+Main create account:
+![Reddit createAccount](./createaccount.png)
+Main login:
+![Reddit logIn](./login.png)
 ### Credits:
 Acknowledge and attribute any contributors, libraries,
 dependencies, or resources used in the project.
